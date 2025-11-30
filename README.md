@@ -104,10 +104,14 @@ Our codes are built upon [EVA](https://github.com/baaivision/EVA/tree/master/EVA
 ## Citation
 If you find our work useful, please consider to cite:
 ```
-@article{eva_x,
-  title={EVA-X: A Foundation Model for General Chest X-ray Analysis with Self-supervised Learning},
-  author={Yao, Jingfeng and Wang, Xinggang and Yuehao, Song and Huangxuan, Zhao and Jun, Ma and Yajie, Yang and Wenyu, Liu and Bo, Wang},
-  journal={arXiv preprint arXiv:2405.05237},
-  year={2024}
+@article{yao2025eva,
+  title={Eva-x: A foundation model for general chest x-ray analysis with self-supervised learning},
+  author={Yao, Jingfeng and Wang, Xinggang and Song, Yuehao and Zhao, Huangxuan and Ma, Jun and Chen, Yajie and Liu, Wenyu and Wang, Bo},
+  journal={npj Digital Medicine},
+  volume={8},
+  number={1},
+  pages={678},
+  year={2025},
+  publisher={Nature Publishing Group UK London}
 }
 ```
