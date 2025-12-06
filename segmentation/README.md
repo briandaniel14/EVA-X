@@ -27,7 +27,7 @@ NOTE: You should run ``python tools/interpolate14to16`` for EVA-X weights to con
 
 ## Data Preparation
 
-1. Download [SIIM-ACR Pneumothorax](https://www.kaggle.com/c/siim-acr-pneumothorax-segmentation/data) / [RSNA Pneumonia](https://www.kaggle.com/c/rsna-pneumonia-detection-challenge/data) / [Lung Segmentation]() / [Shenzhen Hospital]() dataset.
+1. Download [SIIM-ACR Pneumothorax](https://www.kaggle.com/c/siim-acr-pneumothorax-segmentation/data) / [RSNA Pneumonia](https://www.kaggle.com/c/rsna-pneumonia-detection-challenge/data).
 
 2. We random have splited the datasets to train/test images and **released our data split**. You could prepare the dataset by run:
     ```
@@ -46,8 +46,6 @@ python train.py segmentation/config/eva_x/upernet_eva_x_small_siim_50ep.py
 ## Results
 
 All models have been finetuned on the same settings. We will upload the finetuned weights of EVA-X, evaluate finetuned models by running:
-
-**Weights are coming soon...**
 
 ```
 python test.py segmentation/config/eva_x/upernet_eva_x_small_siim_50ep.py \
