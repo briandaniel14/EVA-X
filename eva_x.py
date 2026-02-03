@@ -131,7 +131,7 @@ def eva_x_tiny_patch16(pretrained=False):
         use_rot_pos_emb=True,
         ref_feat_shape=(14, 14),  # 224/16
     )
-    eva_ckpt = checkpoint_filter_fn(torch.load(pretrained, map_location='cpu'), 
+    eva_ckpt = checkpoint_filter_fn(torch.load(pretrained, map_location='cpu', weights_only=False), 
                         model)
     msg = model.load_state_dict(eva_ckpt, strict=False)
     print(msg)
@@ -149,7 +149,7 @@ def eva_x_small_patch16(pretrained=False):
         use_rot_pos_emb=True,
         ref_feat_shape=(14, 14),   # 224/16
     )
-    eva_ckpt = checkpoint_filter_fn(torch.load(pretrained, map_location='cpu'), 
+    eva_ckpt = checkpoint_filter_fn(torch.load(pretrained, map_location='cpu', weights_only=False), 
                         model)
     msg = model.load_state_dict(eva_ckpt, strict=False)
     print(msg)
