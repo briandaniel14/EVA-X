@@ -454,6 +454,7 @@ def main(args):
         model.module.load_state_dict(torch.load(args.finetune)['model'])
         test_stats = evaluate_chestxray(data_loader_test, model, device, args)
         print(f"Average AUC of the network on the test set images: {test_stats['auc_avg']:.4f}")
+
         if args.dataset == 'covidx':
             print(f"Accuracy of the network on the {len(dataset_test)} test images: {test_stats['acc1']:.1f}%")
         exit(0)
