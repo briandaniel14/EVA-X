@@ -31,3 +31,4 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --aa 'rand-m6-mstd0.5-inc1' \
     --use_mean_pooling \
     --eval
+

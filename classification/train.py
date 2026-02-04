@@ -453,10 +453,15 @@ def main(args):
     if args.eval:
         # Load the checkpoint
         checkpoint = torch.load(args.finetune, map_location='cpu')
-        
-        # Extract the state dict (handling the 'module' key)
-        state_dict = checkpoint['module'] if 'module' in checkpoint else checkpoint
-        
+
+        # EVA-02 / EVA-X checkpoints usually nest weights under 'model' or 'module'
+        if 'model' in checkpoint:
+            state_dict = checkpoint['model']
+        elif 'module' in checkpoint:
+            state_dict = checkpoint['module']
+        else:
+            state_dict = checkpoint
+
         # Load weights with strict=False to ignore head mismatches
         msg = model.module.load_state_dict(state_dict, strict=False)
         
