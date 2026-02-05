@@ -1,10 +1,11 @@
-DATASET_DIR='datasets/cxr14'
-CKPT_DIR='checkpoints/eva_x_tiny_patch16_merged520k_mim_cxr14_ft.pth'
+DATASET_DIR='datasets/cxr14/images'
+CKPT_DIR='checkpoints/eva_x_tiny_patch16_merged520k_mim.pt'
 SAVE_DIR='./output/cxr14/vit_ti_eva_x_cxr14'
 TRAIN_LIST='datasets/data_splits/cxr14/sex_labels_train.txt'
 VAL_LIST='datasets/data_splits/cxr14/sex_labels_val.txt'         # not used
 TEST_LIST='datasets/data_splits/cxr14/sex_labels_test.txt'
-NUM_GPUS=1
+NUM_GPUS=2
+NUM_CPUS=4
 
 OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --nproc_per_node=${NUM_GPUS} \
@@ -21,7 +22,7 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --warmup_epochs 5 \
     --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
     --data_path ${DATASET_DIR} \
-    --num_workers 16 \
+    --num_workers ${NUM_CPUS} \
     --train_list ${TRAIN_LIST} \
     --val_list ${VAL_LIST} \
     --test_list ${TEST_LIST} \
