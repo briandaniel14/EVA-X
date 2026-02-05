@@ -6,7 +6,7 @@ VAL_LIST='datasets/data_splits/cxr14/val_official.txt'         # not used
 TEST_LIST='datasets/data_splits/cxr14/test_official.txt'
 NUM_GPUS=1
 
-OMP_NUM_THREADS=1 python -m torch.distributed.launch \
+OMP_NUM_THREADS=1 python3 -m torch.distributed.launch \
     --nproc_per_node=${NUM_GPUS} \
     --use_env train.py \
     --finetune ${CKPT_DIR} \
