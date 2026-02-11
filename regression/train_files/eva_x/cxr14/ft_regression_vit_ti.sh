@@ -15,6 +15,8 @@ python -m torch.distributed.launch \
     --output_dir ${SAVE_DIR} \
     --log_dir ${SAVE_DIR} \
     --batch_size 256 \
+    --label_mean 46.72015158618534 \
+    --label_std 16.60267981756069 \
     --epochs 45 \
     --blr 1e-3 --layer_decay 0.55 --weight_decay 0.05 \
     --model 'eva02_tiny_patch16_xattn_fusedLN_SwiGLU_preln_RoPE' \
@@ -29,5 +31,4 @@ python -m torch.distributed.launch \
     --build_timm_transform \
     --aa 'rand-m6-mstd0.5-inc1' \
     --use_mean_pooling \
-    --last_activation sigmoid \
     --loss_func mse

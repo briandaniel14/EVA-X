@@ -11,7 +11,7 @@ def generate_age_labels(metadata_path: str, data_splits_path: str, split_type: s
     output_data = filtered_df[['Image Index', 'Patient Age']]
 
     output_data.to_csv(f'age_labels_{split_type}.txt', sep=' ', index=False, header=False)
-
+    print(f"Mean: {filtered_df['Patient Age'].mean()}, Std Dev: {filtered_df['Patient Age'].std()}")
     print(f"File 'age_labels_{split_type}.txt' has been created.")
 
 generate_age_labels('Chest_X_Rays_Metadata.csv', '../classification/datasets/data_splits/cxr14/test_official.txt', 'test')

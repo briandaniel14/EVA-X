@@ -16,10 +16,12 @@ from torch.utils.data import Dataset
 
 # --------------------------------------------Downstream ChestX-ray14-------------------------------------------
 class ChestX_ray14(Dataset):
-    def __init__(self, data_dir, file, augment,
+    def __init__(self, data_dir, file, augment, label_mean, label_std,
                  num_class=14, img_depth=3, heatmap_path=None,
                  data_pct=1, seed=0, mode='train',
                  pretraining=False):
+        self.label_mean = label_mean
+        self.label_std = label_std
         self.img_list = []
         self.img_label = []
 
@@ -34,6 +36,10 @@ class ChestX_ray14(Dataset):
                     imageLabel = [float(i) for i in imageLabel]
                     self.img_list.append(imagePath)
                     self.img_label.append(imageLabel)
+
+        # Normalise labels
+        if label_mean is not None and label_std is not None:
+            self.img_label = [(l - label_mean) / label_std for l in self.img_label]
 
         self.augment = augment
         self.img_depth = img_depth
