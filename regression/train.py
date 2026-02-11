@@ -114,6 +114,10 @@ def get_args_parser():
                         help='dataset path')
     parser.add_argument('--nb_classes', default=1, type=int,
                         help='number of the regression outputs')
+    parser.add_argument('--label_mean', default=None, type=float,
+                        help='mean of the train set (for normalisation)')
+    parser.add_argument('--label_std', default=None, type=float,
+                        help='std dev of the train set (for normalisation)')
 
     parser.add_argument('--output_dir', default='./output_dir',
                         help='path where to save, empty for no saving')

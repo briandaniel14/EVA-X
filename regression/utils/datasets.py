@@ -32,7 +32,7 @@ def build_dataset_chest_xray(split, args):
     transform = build_transform(is_train, args)
     if args.dataset == 'chestxray':
         data_list = getattr(args, f'{split}_list')
-        dataset = ChestX_ray14(args.data_path, data_list, augment=transform, num_class=args.nb_classes, data_pct=args.data_pct, seed=args.seed, mode='train' if is_train else 'test')
+        dataset = ChestX_ray14(args.data_path, data_list, augment=transform, label_mean=args.label_mean, label_std=args.label_std, num_class=args.nb_classes, data_pct=args.data_pct, seed=args.seed, mode='train' if is_train else 'test')
     elif args.dataset == 'covidx':
         print(args.dataset)
         dataset = Covidx(data_dir=args.data_path, phase=split, transform=transform, num_classes=args.nb_classes, data_pct=args.data_pct, seed=args.seed, rank=args.rank, train_list=args.train_list, test_list=args.test_list)
