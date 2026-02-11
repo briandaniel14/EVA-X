@@ -184,6 +184,17 @@ def get_args_parser():
 
     return parser
 
+def to_json_serializable(obj):
+    if isinstance(obj, (np.floating, np.integer)):
+        return obj.item()
+    if torch.is_tensor(obj):
+        return obj.item() if obj.ndim == 0 else obj.tolist()
+    if isinstance(obj, dict):
+        return {k: to_json_serializable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [to_json_serializable(v) for v in obj]
+    return obj
+
 
 def main(args):
     misc.init_distributed_mode(args)
@@ -405,6 +416,7 @@ def main(args):
             if args.output_dir and misc.is_main_process():
                 if log_writer is not None:
                     log_writer.flush()
+                log_stats = to_json_serializable(log_stats)
                 with open(os.path.join(args.output_dir, "log.txt"), mode="a", encoding="utf-8") as f:
                     f.write(json.dumps(log_stats) + "\n")
 
