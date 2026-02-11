@@ -21,3 +21,5 @@ reproduce
 *__pycache__*
 
 .venv/
+
+data/
