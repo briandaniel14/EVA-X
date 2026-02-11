@@ -39,7 +39,7 @@ class ChestX_ray14(Dataset):
 
         # Normalise labels
         if label_mean is not None and label_std is not None:
-            self.img_label = [(l - label_mean) / label_std for l in self.img_label]
+            self.img_label = [[(l2 - label_mean) / label_std for l2 in l1] for l1 in self.image_label]
 
         self.augment = augment
         self.img_depth = img_depth
