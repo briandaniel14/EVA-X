@@ -31,4 +31,6 @@ python -m torch.distributed.launch \
     --build_timm_transform \
     --aa 'rand-m6-mstd0.5-inc1' \
     --use_mean_pooling \
-    --loss_func mse
+    --loss_func mse \
+    --mlp_layers 1 \
+    --last_activation sigmoid

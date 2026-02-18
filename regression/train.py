@@ -185,6 +185,18 @@ def get_args_parser():
 
     parser.add_argument('--last_activation', default=None, type=str, choices=[None, 'sigmoid'],
                         help='Last activation function for the model (e.g., sigmoid for logistic regression)')
+    
+    # MLP head parameters
+    parser.add_argument('--mlp_hidden_dim', default=512, type=int,
+                        help='Hidden dimension of MLP head')
+    parser.add_argument('--mlp_layers', default=2, type=int,
+                        help='Number of layers in MLP head (>=1)')
+    parser.add_argument('--mlp_dropout', default=0.0, type=float,
+                        help='Dropout rate in MLP head')
+    parser.add_argument('--mlp_activation', default='gelu', type=str,
+                        choices=['relu', 'gelu'],
+                        help='Activation function in MLP head')
+
 
     return parser
 
@@ -199,6 +211,27 @@ def to_json_serializable(obj):
         return [to_json_serializable(v) for v in obj]
     return obj
 
+def build_mlp_head(in_dim, out_dim, args):
+    # If only 1 layer, original linear head
+    if args.mlp_layers == 1:
+        return torch.nn.Linear(in_dim, out_dim)
+
+    layers = []
+    dim_list = [in_dim] + [args.mlp_hidden_dim] * (args.mlp_layers - 1) + [out_dim]
+
+    for i in range(len(dim_list) - 1):
+        layers.append(torch.nn.Linear(dim_list[i], dim_list[i + 1]))
+
+        if i < len(dim_list) - 2:  # no activation after last layer
+            if args.mlp_activation == 'relu':
+                layers.append(torch.nn.ReLU())
+            else:
+                layers.append(torch.nn.GELU())
+
+            if args.mlp_dropout > 0:
+                layers.append(torch.nn.Dropout(args.mlp_dropout))
+
+    return torch.nn.Sequential(*layers)
 
 def main(args):
     misc.init_distributed_mode(args)
@@ -323,6 +356,21 @@ def main(args):
                 print(msg)
                 trunc_normal_(model.head.weight, std=2e-5)
 
+    # Replace head only if user requests multi-layer MLP
+    if hasattr(model, "head"):
+        in_features = model.head.in_features
+    else:
+        raise AttributeError("Model does not have a 'head' attribute")
+
+    # Build new head (keeps original behaviour if mlp_layers=1)
+    new_head = build_mlp_head(in_features, args.nb_classes, args)
+
+    # If sigmoid requested, wrap with sigmoid
+    if args.last_activation == 'sigmoid':
+        new_head = torch.nn.Sequential(new_head, torch.nn.Sigmoid())
+
+    model.head = new_head
+    
     if args.freeze_backbone or args.linear_probe:
         for _, p in model.named_parameters():
             p.requires_grad = False

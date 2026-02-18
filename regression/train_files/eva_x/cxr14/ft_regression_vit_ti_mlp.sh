@@ -32,5 +32,7 @@ python -m torch.distributed.launch \
     --aa 'rand-m6-mstd0.5-inc1' \
     --use_mean_pooling \
     --loss_func mse \
-    --mlp_layers 1 \
-    --last_activation sigmoid
+    --mlp_layers 2 \
+    --mlp_hidden_dim 512 \
+    --mlp_dropout 0.1 \
+    --mlp_activation gelu
