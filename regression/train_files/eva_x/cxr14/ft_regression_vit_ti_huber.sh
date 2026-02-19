@@ -4,7 +4,7 @@ SAVE_DIR='./output/cxr14/vit_ti_eva_x_regression_huber'
 TRAIN_LIST='../regression/datasets/data_splits/cxr14/age_labels_train.txt'
 VAL_LIST='../regression/datasets/data_splits/cxr14/age_labels_val.txt'
 TEST_LIST='../regression/datasets/data_splits/cxr14/age_labels_test.txt'
-NUM_GPUS=2
+NUM_GPUS=1
 NUM_CPUS=4
 
 # Run from the regression directory

@@ -1,10 +1,10 @@
 DATASET_DIR='../classification/datasets/cxr14/images'
 CKPT_DIR='../classification/checkpoints/eva_x_tiny_patch16_merged520k_mim.pt'
-SAVE_DIR='./output/cxr14/vit_ti_eva_x_regression'
+SAVE_DIR='./output/cxr14/vit_ti_eva_x_regression_mlp'
 TRAIN_LIST='../regression/datasets/data_splits/cxr14/age_labels_train.txt'
 VAL_LIST='../regression/datasets/data_splits/cxr14/age_labels_val.txt'
 TEST_LIST='../regression/datasets/data_splits/cxr14/age_labels_test.txt'
-NUM_GPUS=2
+NUM_GPUS=1
 NUM_CPUS=4
 
 # Run from the regression directory
