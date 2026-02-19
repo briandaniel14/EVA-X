@@ -196,8 +196,17 @@ def get_args_parser():
     parser.add_argument('--mlp_activation', default='gelu', type=str,
                         choices=['relu', 'gelu'],
                         help='Activation function in MLP head')
+    
+    # Different loss function parameters
+    # Robust regression loss params
+    parser.add_argument('--huber_delta', default=1.0, type=float,
+                        help='Delta for Huber loss')
 
+    parser.add_argument('--quantile_tau', default=0.5, type=float,
+                        help='Tau for quantile loss (0.5 = MAE)')
 
+    parser.add_argument('--weighted_loss_power', default=0.0, type=float,
+                        help='If >0, weight samples by |y|^power (for weighted MSE)')
     return parser
 
 def to_json_serializable(obj):
@@ -232,6 +241,31 @@ def build_mlp_head(in_dim, out_dim, args):
                 layers.append(torch.nn.Dropout(args.mlp_dropout))
 
     return torch.nn.Sequential(*layers)
+
+class LogCoshLoss(torch.nn.Module):
+    def forward(self, pred, target):
+        return torch.mean(torch.log(torch.cosh(pred - target + 1e-12)))
+
+
+class WeightedMSELoss(torch.nn.Module):
+    def __init__(self, power=1.0):
+        super().__init__()
+        self.power = power
+
+    def forward(self, pred, target):
+        weights = torch.abs(target) ** self.power
+        return torch.mean(weights * (pred - target) ** 2)
+
+
+class QuantileLoss(torch.nn.Module):
+    def __init__(self, tau=0.5):
+        super().__init__()
+        self.tau = tau
+
+    def forward(self, pred, target):
+        error = target - pred
+        return torch.mean(torch.maximum(self.tau * error,
+                                        (self.tau - 1) * error))
 
 def main(args):
     misc.init_distributed_mode(args)
@@ -409,9 +443,16 @@ def main(args):
         criterion = torch.nn.MSELoss()
     elif args.loss_func == 'mae':
         criterion = torch.nn.L1Loss()
+    elif args.loss_func == 'huber':
+        criterion = torch.nn.SmoothL1Loss(beta=args.huber_delta)
+    elif args.loss_func == 'log_cosh':
+        criterion = LogCoshLoss()
+    elif args.loss_func == 'weighted_mse':
+        criterion = WeightedMSELoss(power=args.weighted_loss_power)
+    elif args.loss_func == 'quantile':
+        criterion = QuantileLoss(tau=args.quantile_tau)
     else:
         criterion = torch.nn.MSELoss()
-
 
     print("criterion = %s" % str(criterion))
 
