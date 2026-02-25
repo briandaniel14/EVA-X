@@ -356,6 +356,12 @@ def main(args):
             drop_path_rate=args.drop_path,
             global_pool=args.global_pool,
         )
+    elif 'resnet' in args.model:
+        model = models.__dict__[args.model](pretrained=False)
+
+        # Replace FC for regression output
+        in_features = model.fc.in_features
+        model.fc = torch.nn.Linear(in_features, args.nb_classes)
     else:
         raise NotImplementedError
 
@@ -389,10 +395,32 @@ def main(args):
                 msg = model.load_state_dict(checkpoint_model, strict=False)
                 print(msg)
                 trunc_normal_(model.head.weight, std=2e-5)
+        elif 'resnet' in args.model:
+            checkpoint = torch.load(args.finetune, map_location='cpu')
+            print("Load pre-trained checkpoint from: %s" % args.finetune)
+
+            if 'state_dict' in checkpoint:
+                checkpoint_model = checkpoint['state_dict']
+            elif 'model' in checkpoint:
+                checkpoint_model = checkpoint['model']
+            else:
+                checkpoint_model = checkpoint
+
+            # Remove classifier if mismatched
+            for k in ['fc.weight', 'fc.bias']:
+                if k in checkpoint_model:
+                    checkpoint_model.pop(k)
+
+            msg = model.load_state_dict(checkpoint_model, strict=False)
+            print(msg)
 
     # Replace head only if user requests multi-layer MLP
     if hasattr(model, "head"):
         in_features = model.head.in_features
+        classifier_name = "head"
+    elif hasattr(model, "fc"):
+        in_features = model.fc.in_features
+        classifier_name = "fc"
     else:
         raise AttributeError("Model does not have a 'head' attribute")
 
@@ -403,14 +431,18 @@ def main(args):
     if args.last_activation == 'sigmoid':
         new_head = torch.nn.Sequential(new_head, torch.nn.Sigmoid())
 
-    model.head = new_head
+    setattr(model, classifier_name, new_head)
     
     if args.freeze_backbone or args.linear_probe:
         for _, p in model.named_parameters():
             p.requires_grad = False
-        for _, p in model.head.named_parameters():
-            p.requires_grad = True
-
+        # unfreeze classifier
+        if hasattr(model, "head"):
+            for _, p in model.head.named_parameters():
+                p.requires_grad = True
+        elif hasattr(model, "fc"):
+            for _, p in model.fc.named_parameters():
+                p.requires_grad = True
     model.to(device)
 
     model_without_ddp = model
@@ -427,10 +459,17 @@ def main(args):
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=args.find_unused_parameters)
         model_without_ddp = model.module
 
-    param_groups = lrd.param_groups_lrd(model_without_ddp, args.weight_decay,
-        no_weight_decay_list=model_without_ddp.no_weight_decay(),
-        layer_decay=args.layer_decay
-    )
+    if 'vit' in args.model or 'eva' in args.model:
+        param_groups = lrd.param_groups_lrd(
+            model_without_ddp, args.weight_decay,
+            no_weight_decay_list=model_without_ddp.no_weight_decay(),
+            layer_decay=args.layer_decay
+        )
+    else:
+        param_groups = optim_factory.add_weight_decay(
+            model_without_ddp,
+            args.weight_decay
+        )
 
     if args.optimizer == 'adamw':
         optimizer = torch.optim.AdamW(param_groups, lr=args.lr)
