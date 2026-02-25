@@ -1,4 +1,4 @@
-DATASET_DIR='datasets/cxr14'
+DATASET_DIR='datasets/cxr14/images'
 CKPT_DIR='checkpoints/resnet50_mgca_pt_cxr14_ft.pth'
 SAVE_DIR='./output/cxr14/r50_mgca_cxr14_sex'
 TRAIN_LIST='datasets/data_splits/cxr14/sex_labels_train.txt'
