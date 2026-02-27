@@ -190,6 +190,7 @@ class CheXpert(Dataset):
                  image_root_path='',
                  class_index=0,
                  use_frontal=True,
+                 view=None,
                  use_upsampling=True,
                  flip_label=False,
                  shuffle=True,
@@ -209,8 +210,25 @@ class CheXpert(Dataset):
         self.df = pd.read_csv(csv_path)
         self.df['Path'] = self.df['Path'].str.replace('CheXpert-v1.0-small/', '')
         self.df['Path'] = self.df['Path'].str.replace('CheXpert-v1.0/', '')
-        if use_frontal:
-            self.df = self.df[self.df['Frontal/Lateral'] == 'Frontal']
+        if view is not None:
+            view_norm = str(view).strip().lower()
+            if view_norm == 'frontal':
+                self.df = self.df[self.df['Frontal/Lateral'] == 'Frontal']
+            elif view_norm == 'lateral':
+                self.df = self.df[self.df['Frontal/Lateral'] == 'Lateral']
+            elif view_norm == 'all':
+                pass
+            else:
+                raise ValueError(
+                    f"Unknown CheXpert view '{view}'. Expected one of: frontal, lateral, all"
+                )
+
+            if verbose and view_norm == 'lateral':
+                sample_paths = self.df['Path'].head(5).tolist()
+                print(f"CheXpert lateral sample paths (first 5): {sample_paths}")
+        else:
+            if use_frontal:
+                self.df = self.df[self.df['Frontal/Lateral'] == 'Frontal']
 
             # upsample selected cols
         if use_upsampling:
@@ -274,10 +292,11 @@ class CheXpert(Dataset):
             np.random.shuffle(data_index)
             self.df = self.df.iloc[data_index]
 
-        assert class_index in [-1, 0, 1, 2, 3, 4], 'Out of selection!'
+        if class_index != -1:
+            assert 0 <= class_index < len(train_cols), 'Out of selection!'
         assert image_root_path != '', 'You need to pass the correct location for the dataset!'
 
-        if class_index == -1:  # 5 classes
+        if class_index == -1:
             print('Multi-label mode: True, Number of classes: [%d]' % len(train_cols))
             self.select_cols = train_cols
             self.value_counts_dict = {}
@@ -317,11 +336,13 @@ class CheXpert(Dataset):
                 print('-' * 30)
                 imratio_list = []
                 for class_key, select_col in enumerate(train_cols):
-                    imratio = self.value_counts_dict[class_key][1] / (
-                            self.value_counts_dict[class_key][0] + self.value_counts_dict[class_key][1])
+                    pos = self.value_counts_dict[class_key].get(1, 0)
+                    neg = self.value_counts_dict[class_key].get(0, 0)
+                    denom = (neg + pos)
+                    imratio = (pos / denom) if denom > 0 else 0.0
                     imratio_list.append(imratio)
                     print('Found %s images in total, %s positive images, %s negative images' % (
-                        self._num_images, self.value_counts_dict[class_key][1], self.value_counts_dict[class_key][0]))
+                        self._num_images, pos, neg))
                     print('%s(C%s): imbalance ratio is %.4f' % (select_col, class_key, imratio))
                     print()
                 self.imratio = np.mean(imratio_list)

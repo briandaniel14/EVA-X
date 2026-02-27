@@ -148,6 +148,23 @@ def get_args_parser():
     parser.add_argument("--train_list", default=None, type=str, help="file for train list")
     parser.add_argument("--val_list", default=None, type=str, help="file for val list")
     parser.add_argument("--test_list", default=None, type=str, help="file for test list")
+
+    # CheXpert-specific options
+    parser.add_argument(
+        "--chexpert_view",
+        default="frontal",
+        type=str,
+        choices=["frontal", "lateral", "all"],
+        help="CheXpert view filter: frontal (default), lateral, or all",
+    )
+
+    parser.add_argument(
+        "--chexpert_labels",
+        default="chexpert5",
+        type=str,
+        choices=["chexpert5", "chexpert14"],
+        help="CheXpert label preset: chexpert5 (default) or chexpert14",
+    )
     parser.add_argument('--eval_interval', default=10, type=int)
     parser.add_argument('--fixed_lr', action='store_true', default=False)
     parser.add_argument('--vit_dropout_rate', type=float, default=0,
