@@ -117,3 +117,10 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# python classification/tools/split_chexpert_lateral.py \
+#   --input_csv "$HOME/EVA-X/data/CheXpert-v1.0-small/train.csv" \
+#   --output_dir "classification/datasets/data_splits/chexpert_lateral" \
+#   --view lateral \
+#   --val_frac 0.1 \
+#   --seed 42
