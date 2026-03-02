@@ -242,11 +242,12 @@ def evaluate_chestxray(data_loader, model, device, args):
     np.save(args.log_dir + '/' + 'y_gt.npy', targets)
     np.save(args.log_dir + '/' + 'y_pred.npy', outputs)
 
-    if args.dataset == 'chexpert' and outputs.shape[1] == 14:
-        # only use the first 5 classes
-        targets = targets[:, [2, 5, 6, 8, 10]]
-        outputs = outputs[:, [2, 5, 6, 8, 10]]
-        num_classes = 5
+    # if args.dataset == 'chexpert' and outputs.shape[1] == 14:
+    #     # only use the first 5 classes
+    #     targets = targets[:, [2, 5, 6, 8, 10]]
+    #     outputs = outputs[:, [2, 5, 6, 8, 10]]
+    #     num_classes = 5
+
     auc_each_class = computeAUROC(targets, outputs, num_classes)
     auc_each_class_array = np.array(auc_each_class)
     missing_classes_index = np.where(auc_each_class_array == 0)[0]
