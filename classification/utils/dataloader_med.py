@@ -374,7 +374,7 @@ class CheXpert(Dataset):
     def __getitem__(self, idx):
 
         if self.mode == 'train':
-            idx = random.randint(0, 9)*self.__len__() + idx
+            idx = random.randint(0, self._num_images - 1)
 
         if self.heatmap is None:
             image = Image.open(self._images_list[idx]).convert('RGB')

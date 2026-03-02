@@ -61,6 +61,8 @@ def build_dataset_chest_xray(split, args):
                 'Fracture',
                 'Support Devices',
             ]
+        elif chexpert_labels == 'lateral5':
+            train_cols = ['Pleural Effusion', 'Edema', 'Cardiomegaly', 'Atelectasis', 'Pneumothorax']
         else:
             train_cols = ['Atelectasis', 'Cardiomegaly', 'Consolidation', 'Edema', 'Pleural Effusion']
 

@@ -162,8 +162,8 @@ def get_args_parser():
         "--chexpert_labels",
         default="chexpert5",
         type=str,
-        choices=["chexpert5", "chexpert14"],
-        help="CheXpert label preset: chexpert5 (default) or chexpert14",
+        choices=["chexpert5", "chexpert14", "lateral5"],
+        help="CheXpert label preset: chexpert5 (default), chexpert14, or lateral5",
     )
     parser.add_argument('--eval_interval', default=10, type=int)
     parser.add_argument('--fixed_lr', action='store_true', default=False)
@@ -425,7 +425,7 @@ def main(args):
 
     eff_batch_size = args.batch_size * args.accum_iter * misc.get_world_size()
 
-    args.lr = args.blr
+    args.lr = args.blr * eff_batch_size / 256
     print("lr: %.2e" % args.lr)
 
     print("accumulate grad iterations: %d" % args.accum_iter)
