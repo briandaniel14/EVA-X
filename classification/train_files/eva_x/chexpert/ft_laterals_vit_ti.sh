@@ -1,4 +1,4 @@
-DATASET_DIR="$HOME/repos/EVA-X/data"
+DATASET_DIR="$HOME/repos/EVA-X/data/"
 CKPT_DIR='checkpoints/eva_x_tiny_patch16_merged520k_mim.pt'
 SAVE_DIR='./output/chexpert/vit_small_eva_x_chexpert_lateral_chexpert5'
 
