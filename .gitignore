@@ -4,8 +4,7 @@ classification/datasets/covidx4
 classification/datasets/cxr14
 classification/datasets/data_splits/covidx4
 classification/datasets/data_splits/chexpert
-classification/pretrained
-classification/output
+classification/checkpoints
 
 grad_cam/output
 grad_cam/pretrained
