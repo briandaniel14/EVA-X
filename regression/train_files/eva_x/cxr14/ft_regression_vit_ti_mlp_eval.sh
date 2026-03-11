@@ -1,6 +1,6 @@
 DATASET_DIR='/tmp/cxr14-val'
 CKPT_DIR='/tmp/eva_x_checkpoints/eva-x-ti-mlp-best.pth'
-SAVE_DIR='./output/cxr14/vit_ti_eva_x_regression_eval'
+SAVE_DIR='./output/cxr14/vit_ti_eva_x_regression_mlp_eval'
 TRAIN_LIST='../regression/datasets/data_splits/cxr14/age_labels_train.txt'
 VAL_LIST='../regression/datasets/data_splits/cxr14/age_labels_val.txt'
 TEST_LIST='../regression/datasets/data_splits/cxr14/age_labels_test.txt'
