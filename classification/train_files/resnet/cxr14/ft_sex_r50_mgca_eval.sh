@@ -1,10 +1,11 @@
 DATASET_DIR='/tmp/cxr14-val'
-CKPT_DIR='output/cxr14/vit_ti_eva_x_cxr14/checkpoint-best.pth'
-SAVE_DIR='./output/cxr14/vit_ti_eva_x_cxr14_eval'
+CKPT_DIR='checkpoints/resnet-checkpoint-best.pth'
+SAVE_DIR='./output/cxr14/r50_mgca_cxr14_sex_eval'
 TRAIN_LIST='datasets/data_splits/cxr14/sex_labels_train.txt'
 VAL_LIST='datasets/data_splits/cxr14/sex_labels_val.txt'         # not used
 TEST_LIST='datasets/data_splits/cxr14/sex_labels_test.txt'
 NUM_GPUS=1
+NUM_CPUS=4
 
 OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --nproc_per_node=${NUM_GPUS} \
@@ -15,13 +16,13 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --batch_size 256 \
     --checkpoint_type "" \
     --epochs 45 \
-    --blr 1e-3 --layer_decay 0.55 --weight_decay 0.05 \
+    --blr 1e-3 --weight_decay 0.05 \
     --fixed_lr \
-    --model 'eva02_tiny_patch16_xattn_fusedLN_SwiGLU_preln_RoPE' \
+    --model 'resnet50' \
     --warmup_epochs 5 \
     --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
     --data_path ${DATASET_DIR} \
-    --num_workers 16 \
+    --num_workers ${NUM_CPUS} \
     --train_list ${VAL_LIST} \
     --val_list ${VAL_LIST} \
     --test_list ${VAL_LIST} \
@@ -29,5 +30,4 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --eval_interval 5 \
     --build_timm_transform \
     --aa 'rand-m6-mstd0.5-inc1' \
-    --use_mean_pooling \
     --eval

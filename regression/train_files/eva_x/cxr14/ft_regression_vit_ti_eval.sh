@@ -1,33 +1,37 @@
 DATASET_DIR='/tmp/cxr14-val'
-CKPT_DIR='output/cxr14/vit_ti_eva_x_cxr14/checkpoint-best.pth'
-SAVE_DIR='./output/cxr14/vit_ti_eva_x_cxr14_eval'
-TRAIN_LIST='datasets/data_splits/cxr14/sex_labels_train.txt'
-VAL_LIST='datasets/data_splits/cxr14/sex_labels_val.txt'         # not used
-TEST_LIST='datasets/data_splits/cxr14/sex_labels_test.txt'
+CKPT_DIR='./checkpoints/eva-x-ti-log-best.pth'
+SAVE_DIR='./output/cxr14/vit_ti_eva_x_regression_eval'
+TRAIN_LIST='../regression/datasets/data_splits/cxr14/age_labels_train.txt'
+VAL_LIST='../regression/datasets/data_splits/cxr14/age_labels_val.txt'
+TEST_LIST='../regression/datasets/data_splits/cxr14/age_labels_test.txt'
 NUM_GPUS=1
+NUM_CPUS=4
 
-OMP_NUM_THREADS=1 python -m torch.distributed.launch \
+# Run from the regression directory
+python -m torch.distributed.launch \
     --nproc_per_node=${NUM_GPUS} \
     --use_env train.py \
     --finetune ${CKPT_DIR} \
     --output_dir ${SAVE_DIR} \
     --log_dir ${SAVE_DIR} \
     --batch_size 256 \
-    --checkpoint_type "" \
+    --label_mean 46.72015158618534 \
+    --label_std 16.60267981756069 \
     --epochs 45 \
     --blr 1e-3 --layer_decay 0.55 --weight_decay 0.05 \
-    --fixed_lr \
     --model 'eva02_tiny_patch16_xattn_fusedLN_SwiGLU_preln_RoPE' \
     --warmup_epochs 5 \
     --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
     --data_path ${DATASET_DIR} \
-    --num_workers 16 \
+    --num_workers ${NUM_CPUS} \
     --train_list ${VAL_LIST} \
     --val_list ${VAL_LIST} \
     --test_list ${VAL_LIST} \
-    --nb_classes 2 \
     --eval_interval 5 \
     --build_timm_transform \
     --aa 'rand-m6-mstd0.5-inc1' \
     --use_mean_pooling \
+    --loss_func mse \
+    --mlp_layers 1 \
     --eval
+    #--last_activation sigmoid \
