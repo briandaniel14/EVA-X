@@ -134,6 +134,9 @@ def evaluate_regression(data_loader, model, device, args, last_activation=None):
     outputs = torch.cat(outputs, dim=0).cpu().numpy()
     targets = torch.cat(targets, dim=0).cpu().numpy()
 
+    np.save(args.log_dir + '/' + 'y_gt.npy', targets)
+    np.save(args.log_dir + '/' + 'y_pred.npy', outputs)
+
     mae = mean_absolute_error(targets, outputs)
     mse = mean_squared_error(targets, outputs)
     rmse = np.sqrt(mse)

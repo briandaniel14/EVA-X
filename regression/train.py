@@ -426,7 +426,8 @@ def main(args):
 
             # Remove classifier if mismatched
             for k in ['fc.weight', 'fc.bias']:
-                if k in checkpoint_model:
+                if k in checkpoint_model and not args.eval:
+                    print(f"Removed {k} from checkpoint...")
                     checkpoint_model.pop(k)
 
             msg = model.load_state_dict(checkpoint_model, strict=False)
