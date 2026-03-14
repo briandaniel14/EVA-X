@@ -1,6 +1,6 @@
 DATASET_DIR="$HOME/repos/EVA-X/data/"
-CKPT_DIR='checkpoints/eva_x_small_patch16_merged520k_mim.pt'
-SAVE_DIR='./output/chexpert/vit_small_eva_x_chexpert_lateral_chexpert5'
+CKPT_DIR='checkpoints/eva_x_base_patch16_merged520k_mim.pt'
+SAVE_DIR='./output/chexpert/vit_base_eva_x_chexpert_lateral_chexpert5'
 
 # Build a patient-level lateral-only split so validation isn't tiny.
 TRAIN_LIST="$DATASET_DIR/laterals/train.csv"
@@ -29,7 +29,7 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --checkpoint_type "" \
     --epochs ${EPOCHS} \
     --blr 5e-4 --layer_decay 0.55 --weight_decay 0.05 \
-    --model 'eva02_small_patch16_xattn_fusedLN_SwiGLU_preln_RoPE' \
+    --model 'eva02_base_patch16_xattn_fusedLN_SwiGLU_preln_RoPE' \
     --warmup_epochs 40 \
     --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
     --data_path ${DATASET_DIR} \
