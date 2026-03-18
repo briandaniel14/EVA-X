@@ -1,4 +1,4 @@
-MODEL_SIZE="small"
+MODEL_SIZE="tiny"
 
 DATASET_DIR="$HOME/repos/EVA-X/data/"
 CKPT_DIR="checkpoints/eva_x_${MODEL_SIZE}_patch16_merged520k_mim.pt"
@@ -10,10 +10,10 @@ VAL_LIST='./'  # not used by train.py
 TEST_LIST="$DATASET_DIR/laterals/valid.csv"  # used as validation set during training
 
 NUM_GPUS=1 # was 4
-BATCH_SIZE=128 # was 256
+BATCH_SIZE=256 # was 256
 ACCUM_ITER=4 # gradient accumulation steps 
 EPOCHS=100
-NUM_WORKERS=4 # was 8
+NUM_WORKERS=8 # was 8
 
 OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --nproc_per_node=${NUM_GPUS} \
@@ -26,12 +26,12 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --output_dir ${SAVE_DIR} \
     --log_dir ${SAVE_DIR} \
     --batch_size ${BATCH_SIZE} \
-    --accum_iter ${ACCUM_ITER} \
     --checkpoint_type "" \
     --epochs ${EPOCHS} \
-    --blr 5e-4 --layer_decay 0.55 --weight_decay 0.05 \
+    --blr 1e-3 --layer_decay 0.55 --weight_decay 0.05 \
+    --fixed_lr \
     --model "eva02_${MODEL_SIZE}_patch16_xattn_fusedLN_SwiGLU_preln_RoPE" \
-    --warmup_epochs 40 \
+    --warmup_epochs 0 \
     --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
     --data_path ${DATASET_DIR} \
     --num_workers ${NUM_WORKERS} \
@@ -43,4 +43,4 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --find_unused_parameters \
     --use_mean_pooling \
     --stop_grad_conv1 \
-    --build_timm_transform
+    --use_smooth_label
