@@ -1,7 +1,6 @@
 #!/bin/bash
-# Data efficiency analysis: train lateral CheXpert-5 at 1%, 10%, and 100% of training data.
 
-DATASET_DIR="$HOME/EVA-X/data/CheXpert-v1.0-small/"
+DATASET_DIR="$HOME/repos/EVA-X/data/"
 CKPT_DIR='checkpoints/eva_x_tiny_patch16_merged520k_mim.pt'
 TRAIN_LIST="$DATASET_DIR/laterals/train.csv"
 VAL_LIST='./'
@@ -10,8 +9,8 @@ TEST_LIST="$DATASET_DIR/laterals/valid.csv"
 NUM_GPUS=1
 BATCH_SIZE=64
 ACCUM_ITER=4
-EPOCHS=200
-NUM_WORKERS=1
+EPOCHS=100
+NUM_WORKERS=8
 
 for DATA_PCT in 0.01 0.10 1.0; do
     # Human-readable label for folder name
@@ -40,9 +39,9 @@ for DATA_PCT in 0.01 0.10 1.0; do
         --accum_iter ${ACCUM_ITER} \
         --checkpoint_type "" \
         --epochs ${EPOCHS} \
-        --blr 5e-4 --layer_decay 0.55 --weight_decay 0.05 \
+        --blr 1e-3 --layer_decay 0.55 --weight_decay 0.05 \
         --model 'eva02_tiny_patch16_xattn_fusedLN_SwiGLU_preln_RoPE' \
-        --warmup_epochs 40 \
+        --warmup_epochs 0 \
         --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
         --data_path ${DATASET_DIR} \
         --data_pct ${DATA_PCT} \
