@@ -1,18 +1,19 @@
+MODEL_SIZE="small"
+
 DATASET_DIR="$HOME/repos/EVA-X/data/"
-CKPT_DIR='checkpoints/eva_x_base_patch16_merged520k_mim.pt'
-SAVE_DIR='./output/chexpert/vit_base_eva_x_chexpert_lateral_chexpert5'
+CKPT_DIR="checkpoints/eva_x_${MODEL_SIZE}_patch16_merged520k_mim.pt"
+SAVE_DIR="./output/chexpert/vit_${MODEL_SIZE}_eva_x_chexpert_lateral_chexpert5_test"
 
 # Build a patient-level lateral-only split so validation isn't tiny.
 TRAIN_LIST="$DATASET_DIR/laterals/train.csv"
 VAL_LIST='./'  # not used by train.py
 TEST_LIST="$DATASET_DIR/laterals/valid.csv"  # used as validation set during training
 
-
 NUM_GPUS=1 # was 4
-BATCH_SIZE=64 # was 256
-ACCUM_ITER=4 # gradient accumulation steps (effective batch = BATCH_SIZE * ACCUM_ITER * NUM_GPUS)
-EPOCHS=200
-NUM_WORKERS=1 # was 8
+BATCH_SIZE=128 # was 256
+ACCUM_ITER=4 # gradient accumulation steps 
+EPOCHS=100
+NUM_WORKERS=4 # was 8
 
 OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --nproc_per_node=${NUM_GPUS} \
@@ -29,7 +30,7 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --checkpoint_type "" \
     --epochs ${EPOCHS} \
     --blr 5e-4 --layer_decay 0.55 --weight_decay 0.05 \
-    --model 'eva02_base_patch16_xattn_fusedLN_SwiGLU_preln_RoPE' \
+    --model "eva02_${MODEL_SIZE}_patch16_xattn_fusedLN_SwiGLU_preln_RoPE" \
     --warmup_epochs 40 \
     --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
     --data_path ${DATASET_DIR} \
@@ -43,5 +44,3 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --use_mean_pooling \
     --stop_grad_conv1 \
     --build_timm_transform
-#    --use_smooth_label
-#    --fixed_lr 
