@@ -1,6 +1,6 @@
 MODEL_SIZE="base"
 
-DATASET_DIR="$HOME/EVA-X/data/"
+DATASET_DIR="$HOME/repos/EVA-X/data/"
 CKPT_DIR="checkpoints/eva_x_${MODEL_SIZE}_patch16_merged520k_mim.pt"
 SAVE_DIR="./output/chexpert/vit_${MODEL_SIZE}_eva_x_chexpert_lateral_chexpert5_thursday"
 
