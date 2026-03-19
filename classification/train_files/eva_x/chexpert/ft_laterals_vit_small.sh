@@ -2,7 +2,7 @@ MODEL_SIZE="small"
 
 DATASET_DIR="$HOME/repos/EVA-X/data/"
 CKPT_DIR="checkpoints/eva_x_${MODEL_SIZE}_patch16_merged520k_mim.pt"
-SAVE_DIR="./output/chexpert/vit_${MODEL_SIZE}_eva_x_chexpert_lateral_chexpert5_test"
+SAVE_DIR="./output/chexpert/vit_${MODEL_SIZE}_eva_x_chexpert_lateral_chexpert5_thursday"
 
 # Build a patient-level lateral-only split so validation isn't tiny.
 TRAIN_LIST="$DATASET_DIR/laterals/train.csv"
@@ -13,7 +13,7 @@ NUM_GPUS=1 # was 4
 BATCH_SIZE=256 # was 256
 ACCUM_ITER=4 # gradient accumulation steps 
 EPOCHS=60
-NUM_WORKERS=8 # was 8
+NUM_WORKERS=1 # was 8
 
 OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --nproc_per_node=${NUM_GPUS} \
@@ -42,3 +42,4 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --eval_interval 1 \
     --find_unused_parameters \
     --use_mean_pooling \
+    --master_port=29501
