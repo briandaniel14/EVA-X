@@ -42,4 +42,3 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --eval_interval 1 \
     --find_unused_parameters \
     --use_mean_pooling \
-    --master_port=29500
