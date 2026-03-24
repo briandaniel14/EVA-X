@@ -5,9 +5,9 @@ CKPT_DIR="checkpoints/eva_x_${MODEL_SIZE}_patch16_merged520k_mim.pt"
 SAVE_DIR="./output/chexpert/vit_${MODEL_SIZE}_eva_x_chexpert_frontal_chexpert5_thursday"
 
 # Build a patient-level lateral-only split so validation isn't tiny.
-TRAIN_LIST="$DATASET_DIR/train.csv"
+TRAIN_LIST="$DATASET_DIR/frontals/train.csv"
 VAL_LIST='./'  # not used by train.py
-TEST_LIST="$DATASET_DIR/valid.csv"  # used as validation set during training
+TEST_LIST="$DATASET_DIR/frontals/valid.csv"  # used as validation set during training
 
 NUM_GPUS=1 # was 4
 BATCH_SIZE=256 # was 256
