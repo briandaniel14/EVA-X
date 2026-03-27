@@ -3,7 +3,6 @@
 <div style="text-align:center"><img src="figs/cls-result.png" /></div>
 
 ## Installation
-
 First, clone the repo and install required packages:
 ```bash
 conda create --name evax python=3.8 -y
@@ -15,6 +14,20 @@ pip install -r requirements.txt
 ```
 
 Then, install [Apex](https://github.com/NVIDIA/apex#linux) and [xFormer](https://github.com/facebookresearch/xformers#installing-xformers) following the official instruction.
+
+### Installing Apex
+```bash
+conda install conda-forge::cudatoolkit-dev  # for nvcc to compile apex
+conda install conda-forge::gxx==11.4.0 # on DICE, to get the right version of
+conda install -c conda-forge libxcrypt # to get crypt.h for apex
+git clone https://github.com/NVIDIA/apex
+cd apex
+git checkout 23.05 # older version of apex that works with torch 2.0 (required for this project)
+export LDFLAGS="-L/usr/lib64 -L/lib64 -L/lib/x86_64-linux-gnu -L$CONDA_PREFIX/lib"
+export CPPFLAGS="-I$CONDA_PREFIX/include"
+export USE_NINJA=0
+pip install -v --no-cache-dir --no-build-isolation --config-settings "--global-option=--cpp_ext" --config-settings "--global-option=--cuda_ext" .
+```
 
 
 Core packages:

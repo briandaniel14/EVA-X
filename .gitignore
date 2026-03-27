@@ -19,3 +19,7 @@ segmentation/ops/build
 *syh*
 reproduce
 *__pycache__*
+
+.venv/
+
+data/

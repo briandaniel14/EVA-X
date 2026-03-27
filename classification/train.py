@@ -451,9 +451,27 @@ def main(args):
     misc.load_model(args=args, model_without_ddp=model_without_ddp, optimizer=optimizer, loss_scaler=loss_scaler)
 
     if args.eval:
-        model.module.load_state_dict(torch.load(args.finetune)['model'])
+        # Load the checkpoint
+        checkpoint = torch.load(args.finetune, map_location='cpu')
+
+        # EVA-02 / EVA-X checkpoints usually nest weights under 'model' or 'module'
+        if 'model' in checkpoint:
+            state_dict = checkpoint['model']
+        elif 'module' in checkpoint:
+            state_dict = checkpoint['module']
+        else:
+            state_dict = checkpoint
+
+        # Load weights with strict=False to ignore head mismatches
+        msg = model.module.load_state_dict(state_dict, strict=False)
+        
+        # Optional: print the missing keys to confirm only 'head' and 'fc_norm' are missing
+        print(f"Missing keys: {msg.missing_keys}")
+        print(f"Unexpected keys: {msg.unexpected_keys}")
+
         test_stats = evaluate_chestxray(data_loader_test, model, device, args)
         print(f"Average AUC of the network on the test set images: {test_stats['auc_avg']:.4f}")
+
         if args.dataset == 'covidx':
             print(f"Accuracy of the network on the {len(dataset_test)} test images: {test_stats['acc1']:.1f}%")
         exit(0)
