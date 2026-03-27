@@ -42,8 +42,35 @@ def build_dataset_chest_xray(split, args):
         else:
             mode = 'valid'
         data_list = getattr(args, f'{split}_list')
+
+        chexpert_labels = getattr(args, 'chexpert_labels', 'chexpert5')
+        if chexpert_labels == 'chexpert14':
+            train_cols = [
+                'No Finding',
+                'Enlarged Cardiomediastinum',
+                'Cardiomegaly',
+                'Lung Opacity',
+                'Lung Lesion',
+                'Edema',
+                'Consolidation',
+                'Pneumonia',
+                'Atelectasis',
+                'Pneumothorax',
+                'Pleural Effusion',
+                'Pleural Other',
+                'Fracture',
+                'Support Devices',
+            ]
+        elif chexpert_labels == 'lateral5':
+            train_cols = ['Pleural Effusion', 'Edema', 'Cardiomegaly', 'Atelectasis', 'Pneumothorax']
+        else:
+            train_cols = ['Atelectasis', 'Cardiomegaly', 'Consolidation', 'Edema', 'Pleural Effusion']
+
+        # Keep model head output dimension in sync with label preset.
+        args.nb_classes = len(train_cols)
+
         dataset = CheXpert(csv_path=data_list, image_root_path=args.data_path, use_upsampling=False,
-                             use_frontal=True, mode=mode, class_index=-1, transform=transform, use_rand_label=args.use_smooth_label)
+                             use_frontal=True, view=getattr(args, 'chexpert_view', 'frontal'), mode=mode, class_index=-1, transform=transform, use_rand_label=args.use_smooth_label, train_cols=train_cols)
     else:
         raise NotImplementedError
     print(dataset)
