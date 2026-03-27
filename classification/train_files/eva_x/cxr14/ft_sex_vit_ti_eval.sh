@@ -1,6 +1,6 @@
-DATASET_DIR='datasets/cxr14/images'
+DATASET_DIR='/tmp/cxr14-val'
 CKPT_DIR='output/cxr14/vit_ti_eva_x_cxr14/checkpoint-best.pth'
-SAVE_DIR='./output/cxr14/vit_ti_eva_x_cxr14'
+SAVE_DIR='./output/cxr14/vit_ti_eva_x_cxr14_eval'
 TRAIN_LIST='datasets/data_splits/cxr14/sex_labels_train.txt'
 VAL_LIST='datasets/data_splits/cxr14/sex_labels_val.txt'         # not used
 TEST_LIST='datasets/data_splits/cxr14/sex_labels_test.txt'
@@ -22,7 +22,7 @@ OMP_NUM_THREADS=1 python -m torch.distributed.launch \
     --drop_path 0.2 --mixup 0 --cutmix 0 --reprob 0 --vit_dropout_rate 0 \
     --data_path ${DATASET_DIR} \
     --num_workers 16 \
-    --train_list ${TRAIN_LIST} \
+    --train_list ${VAL_LIST} \
     --val_list ${VAL_LIST} \
     --test_list ${VAL_LIST} \
     --nb_classes 2 \

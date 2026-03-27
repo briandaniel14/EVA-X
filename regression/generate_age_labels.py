@@ -1,5 +1,11 @@
 import pandas as pd
 import re
+import os
+import random
+
+random.seed(42)
+
+REXGRADIENT_DIR = "/home/s2331883/ReXGradient"
 
 def parse_age_rexgradient(age_str: str) -> float:
     """
@@ -36,10 +42,56 @@ def generate_age_labels_rexgradient(metadata_path: str, split_type: str):
     # Convert age to years
     df['AgeYears'] = df['PatientAge'].apply(parse_age_rexgradient)
 
-    df['FileName'] = df['StudyInstanceUid'] + '.png'
+    # Construct directory from IDs
+    df['PartialPath'] = (
+            REXGRADIENT_DIR + "/deid_png/" +
+            df['id'].str.replace(r"^p", "", regex=True) # remove leading 'p'
+                    .str.split("_").str[0]              # keep text before first underscore
+            + "/" + df['AccessionNumber'].astype(str)   # concatenate /AccessionNumber
+            + "/studies"
+            + "/" + df['StudyInstanceUid'].astype(str)
+            + "/series"
+    )
+    
+    # Loop through, randomly choosing from multiple images per case
+    full_file_paths = []
+    
+    #df = df.head(10)
+    for _, row in df.iterrows():
+        base_path = row["PartialPath"]
 
+        try:
+            # List folders in PartialPath
+            folders = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
+        
+            if not folders:
+                full_file_paths.append(None)
+                continue
+        
+            # Pick one random folder
+            chosen_folder = random.choice(folders)
+        
+            # Go into instances directory
+            instances_path = os.path.join(base_path, chosen_folder, "instances")
+        
+            # List files in instances
+            files = [f for f in os.listdir(instances_path) if os.path.isfile(os.path.join(instances_path, f))]
+        
+            if not files:
+                full_file_paths.append(None)
+                continue
+        
+            # Pick the single file
+            chosen_file = random.choice(files)
+            chosen_path = os.path.join(instances_path, chosen_file)
+            full_file_paths.append(os.path.relpath(chosen_path, REXGRADIENT_DIR))
+        
+        except Exception:
+            full_file_paths.append(None)
+
+    df["FileName"] = full_file_paths
+    
     filtered_df = df[df['AgeYears'] > 0.0]
-
     print(f"{df.shape[0] - filtered_df.shape[0]} NaN age values removed")
 
     output_data = filtered_df[['FileName', 'AgeYears']]
@@ -68,9 +120,9 @@ def generate_age_labels_cxr_14(metadata_path: str, data_splits_path: str, split_
     print(f"Mean: {filtered_df['Patient Age'].mean()}, Std Dev: {filtered_df['Patient Age'].std()}")
     print(f"File 'age_labels_{split_type}.txt' has been created.")
 
-generate_age_labels_cxr_14('Chest_X_Rays_Metadata.csv', '../classification/datasets/data_splits/cxr14/test_official.txt', 'test')
-generate_age_labels_cxr_14('Chest_X_Rays_Metadata.csv', '../classification/datasets/data_splits/cxr14/train_official.txt', 'train')
-generate_age_labels_cxr_14('Chest_X_Rays_Metadata.csv', '../classification/datasets/data_splits/cxr14/val_official.txt', 'val')
-generate_age_labels_rexgradient('train_metadata.csv', 'train')
-generate_age_labels_rexgradient('test_metadata.csv', 'test')
+#generate_age_labels_cxr_14('Chest_X_Rays_Metadata.csv', '../classification/datasets/data_splits/cxr14/test_official.txt', 'test')
+#generate_age_labels_cxr_14('Chest_X_Rays_Metadata.csv', '../classification/datasets/data_splits/cxr14/train_official.txt', 'train')
+#generate_age_labels_cxr_14('Chest_X_Rays_Metadata.csv', '../classification/datasets/data_splits/cxr14/val_official.txt', 'val')
+#generate_age_labels_rexgradient('train_metadata.csv', 'train')
+#generate_age_labels_rexgradient('test_metadata.csv', 'test')
 generate_age_labels_rexgradient('valid_metadata.csv', 'valid')

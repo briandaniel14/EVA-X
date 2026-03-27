@@ -65,6 +65,13 @@ def load_weights_for_eva(model, checkpoint, args):
     #     print("Load state_dict model_ema [eval only]")
 
     state_dict = model.state_dict()
+    if 'head.0.weight' in state_dict and not 'head.1.weight' in state_dict:
+        state_dict['head.weight'] = state_dict['head.0.weight']
+        state_dict['head.bias'] = state_dict['head.0.bias']
+        print("Mapped checkpoint head to model head")
+        del state_dict['head.0.weight']
+        del state_dict['head.0.bias']
+
     if not args.eval:
         for k in ['head.weight', 'head.bias']:
             if k in checkpoint_model and checkpoint_model[k].shape != state_dict[k].shape:

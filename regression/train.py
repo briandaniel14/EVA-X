@@ -370,9 +370,27 @@ def main(args):
     args_dict = vars(args)
     with open(save_dir, 'w') as fp:
         json.dump(args_dict, fp, indent=4)
+    
+    # Replace head only if user requests multi-layer MLP
+    if hasattr(model, "head"):
+        in_features = model.head.in_features
+        classifier_name = "head"
+    elif hasattr(model, "fc"):
+        in_features = model.fc.in_features
+        classifier_name = "fc"
+    else:
+        raise AttributeError("Model does not have a 'head' attribute")
 
+    # Build new head (keeps original behaviour if mlp_layers=1)
+    new_head = build_mlp_head(in_features, args.nb_classes, args)
 
-    if args.finetune and not args.eval:
+    # If sigmoid requested, wrap with sigmoid
+    if args.last_activation == 'sigmoid':
+        new_head = torch.nn.Sequential(new_head, torch.nn.Sigmoid())
+
+    setattr(model, classifier_name, new_head)
+
+    if args.finetune:
         if 'vit' in args.model or 'eva' in args.model:
             if 'eva' in args.model:
                 if args.finetune.startswith('https'):
@@ -408,31 +426,13 @@ def main(args):
 
             # Remove classifier if mismatched
             for k in ['fc.weight', 'fc.bias']:
-                if k in checkpoint_model:
+                if k in checkpoint_model and not args.eval:
+                    print(f"Removed {k} from checkpoint...")
                     checkpoint_model.pop(k)
 
             msg = model.load_state_dict(checkpoint_model, strict=False)
             print(msg)
 
-    # Replace head only if user requests multi-layer MLP
-    if hasattr(model, "head"):
-        in_features = model.head.in_features
-        classifier_name = "head"
-    elif hasattr(model, "fc"):
-        in_features = model.fc.in_features
-        classifier_name = "fc"
-    else:
-        raise AttributeError("Model does not have a 'head' attribute")
-
-    # Build new head (keeps original behaviour if mlp_layers=1)
-    new_head = build_mlp_head(in_features, args.nb_classes, args)
-
-    # If sigmoid requested, wrap with sigmoid
-    if args.last_activation == 'sigmoid':
-        new_head = torch.nn.Sequential(new_head, torch.nn.Sigmoid())
-
-    setattr(model, classifier_name, new_head)
-    
     if args.freeze_backbone or args.linear_probe:
         for _, p in model.named_parameters():
             p.requires_grad = False
